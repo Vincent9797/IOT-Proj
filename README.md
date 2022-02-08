@@ -1,5 +1,5 @@
 
-# Mercari ML Assignment
+# IOT Assignment
 
 Ensure you have prerequisites by running `pip install -r requirements.txt` 
 
