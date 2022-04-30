@@ -1,5 +1,6 @@
 flask
-tensorflow
+tensorflow==2.3.0
 opencv-python
 flask
 tqdm
+matplotlib

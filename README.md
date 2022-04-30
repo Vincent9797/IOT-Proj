@@ -5,8 +5,10 @@ Ensure you have prerequisites by running `pip install -r requirements.txt`
 
 This is a simple Flask application. To run this app, type python run `python app.py` into your command prompt. To check whether your server is up and running, go to https://localhost:5000 and you should see this:
 
-Type run `python app.py --train` to train the model from scratch
+Run `python app.py --train` to train the model from scratch
+Run `python app.py` to use available model (model.h5)
 
+Visit the homepage to verify that the server is up and running:
 <img src="assets/home.png" width="1000">
 
 The following API(s) are supported:

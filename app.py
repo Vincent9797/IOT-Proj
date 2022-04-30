@@ -1,8 +1,7 @@
 import argparse
 import cv2
 import os
-import random
-from glob import glob
+
 import numpy as np
 from datetime import datetime
 import time
@@ -10,7 +9,8 @@ import time
 import flask
 from flask import request, jsonify, make_response
 import tensorflow as tf
-from tqdm import tqdm
+
+from utils import get_data, get_model
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
@@ -28,8 +28,8 @@ def home():
 def predict():
     label, retrain = run_inference(request.json["image_data"])
 
-    if retrain:
-        retrain_model()
+    # if retrain:
+    #     retrain_model()
 
     response = make_response(
         jsonify({"Label": label}),
@@ -58,56 +58,9 @@ def run_inference(img):
 
     return label, retrain
 
-def get_data():
-    x_train, y_train = [], []
-    x_val, y_val = [], []
-    for i in tqdm(glob(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data/male/*.jpg'))):
-        img = cv2.imread(i)
-        img = cv2.resize(img, (SIZE, SIZE)) / 255
-        if random.random() > 0.8:
-            x_val.append(img)
-            y_val.append([1])
-        else:
-            x_train.append(img)
-            y_train.append([1])
-
-    for i in tqdm(glob(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data/female/*.jpg'))):
-        img = cv2.imread(i)
-        img = cv2.resize(img, (SIZE, SIZE)) / 255
-        if random.random() > 0.8:
-            x_val.append(img)
-            y_val.append([0])
-        else:
-            x_train.append(img)
-            y_train.append([0])
-
-    x_train = np.array(x_train)
-    x_val = np.array(x_val)
-    y_train = np.array(y_train)
-    y_val = np.array(y_val)
-
-    np.random.shuffle(x_train)
-    np.random.shuffle(y_train)
-    np.random.shuffle(x_val)
-    np.random.shuffle(y_val)
-
-    return x_train, x_val, y_train, y_val
-
-def get_model():
-    base_model = tf.keras.applications.MobileNetV2(input_shape=(SIZE, SIZE, 3),
-                                                   include_top=False,
-                                                   weights='imagenet')
-    model = tf.keras.Sequential([
-        base_model,
-        tf.keras.layers.GlobalAveragePooling2D(),
-        tf.keras.layers.Dense(1, activation='sigmoid')
-    ])
-    print(model.summary())
-    return base_model
-
 def train_model():
-    x_train, x_val, y_train, y_val = get_data()
-    model = get_model()
+    x_train, x_val, y_train, y_val = get_data(size=SIZE)
+    model = get_model(size=SIZE)
     model.compile(optimizer=tf.keras.optimizers.RMSprop(learning_rate=1e-3),
                   loss='binary_crossentropy',
                   metrics=['accuracy'])
@@ -139,6 +92,4 @@ if __name__ == '__main__':
         MODEL = tf.keras.models.load_model('model.h5')
     else:
         MODEL = train_model()
-
     app.run(threaded=True)
-
