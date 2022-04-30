@@ -22,9 +22,10 @@ if __name__ == '__main__':
     COUNT = 0
 
     try:
-        response = requests.post('http://localhost:5000/predict', json={'image_data': image.tolist()})
+        response = requests.post('http://34.70.27.164:9090/predict', json={'image_data': image.tolist()})
         print(response.json())
     except Exception as e:
+
         print(e)
 
 
